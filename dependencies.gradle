@@ -1,0 +1,18 @@
+// Define repositories where Gradle can find dependencies.
+repositories {
+    mavenCentral() // Standard Maven repository
+    maven {
+        url "https://cursemaven.com" // Repository for CurseForge dependencies
+    }
+    // Add any other custom repositories here if needed.
+}
+
+// Define your project's dependencies.
+dependencies {
+    // Your Spartan Weaponry dependency.
+    // 'fg.deobf' correctly tells ForgeGradle to download and deobfuscate this mod.
+    implementation fg.deobf("curse.maven:teabs-doctor-who-mod-994244:6874848")
+    implementation fg.deobf("curse.maven:jei-238222:6600311")
+    // Add any other mod or library dependencies you need here.
+    // Example: implementation fg.deobf("curse.maven:another-mod:123456:7890123")
+}
