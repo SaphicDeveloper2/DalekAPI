@@ -3,6 +3,7 @@ package wcore.sapphic.ai;
 // Minecraft & Forge Imports
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -40,10 +41,10 @@ public abstract class AbstractDalekEntity extends Monster implements RangedAttac
     private static final Logger LOGGER = LogManager.getLogger();
 
     // TODO: Register these SoundEvents in your main mod file and provide the sound files.
-    // public static final SoundEvent DALEK_AMBIENT = new SoundEvent(new ResourceLocation("yourmodid", "dalek.ambient"));
-    // public static final SoundEvent DALEK_HURT = new SoundEvent(new ResourceLocation("yourmodid", "dalek.hurt"));
-    // public static final SoundEvent DALEK_DEATH = new SoundEvent(new ResourceLocation("yourmodid", "dalek.death"));
-    // public static final SoundEvent DALEK_EXTERMINATE = new SoundEvent(new ResourceLocation("yourmodid", "dalek.exterminate"));
+    public static final SoundEvent DALEK_AMBIENT = new SoundEvent(new ResourceLocation("teabsdoctorwhomod", "dalek.ambient"));
+    public static final SoundEvent DALEK_HURT = new SoundEvent(new ResourceLocation("teabsdoctorwhomod", "dalek.hurt"));
+    public static final SoundEvent DALEK_DEATH = new SoundEvent(new ResourceLocation("teabsdoctorwhomod", "dalek.death"));
+    public static final SoundEvent DALEK_EXTERMINATE = new SoundEvent(new ResourceLocation("teabsdoctorwhomod", "dalek.exterminate"));
 
     public AbstractDalekEntity(EntityType<? extends Monster> type, Level level) {
         super(type, level);
