@@ -1,6 +1,8 @@
 package wcore.sapphic.ai;
 
 // Import necessary classes
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -16,11 +18,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-// We now import the projectile entity class directly to use its 'shoot' method.
-// NOTE: The package path below is assumed. You may need to adjust it if it's different in the mod's files.
 import net.teabs.teabsdoctorwhomod.entity.DalekGunstickProjectileEntity;
 import org.jetbrains.annotations.NotNull;
+import wcore.sapphic.events.DalekSoundEvents; // Import the new sound helper class
 
 public abstract class AbstractDalekEntity extends Monster implements RangedAttackMob {
 
@@ -36,17 +36,17 @@ public abstract class AbstractDalekEntity extends Monster implements RangedAttac
         super.registerGoals();
 
         // --- GOAL SELECTOR (Actions) ---
-        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.2, false) {
-            @Override
-            protected double getAttackReachSqr(LivingEntity entity) {
-                return (this.mob.getBbWidth() * this.mob.getBbWidth() + entity.getBbWidth());
-            }
-        });
-
         this.goalSelector.addGoal(1, new RangedAttackGoal(this, 1.25D, 5, 10.0F) {
             @Override
             public boolean canContinueToUse() {
                 return this.canUse();
+            }
+        });
+
+        this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.2, false) { // Priority changed from 1 to 2
+            @Override
+            protected double getAttackReachSqr(LivingEntity entity) {
+                return (this.mob.getBbWidth() * this.mob.getBbWidth() + entity.getBbWidth());
             }
         });
 
@@ -76,8 +76,27 @@ public abstract class AbstractDalekEntity extends Monster implements RangedAttac
 
     @Override
     public void performRangedAttack(@NotNull LivingEntity target, float distanceFactor) {
+        // Play the exterminate sound on attack
+        this.playSound(DalekSoundEvents.DALEK_EXTERMINATE, 1.0F, 1.0F);
         // Firing the projectile exactly as the original mod does.
         DalekGunstickProjectileEntity.shoot(this, target);
+    }
+
+    // --- SOUNDS ADDED HERE ---
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return DalekSoundEvents.DALEK_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
+        return DalekSoundEvents.DALEK_HURT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return DalekSoundEvents.DALEK_DEATH;
     }
 
     private void addTargetGoalByClassName(int priority, String className) {
