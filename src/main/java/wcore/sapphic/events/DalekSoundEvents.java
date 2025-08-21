@@ -3,8 +3,6 @@ package wcore.sapphic.events;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 
-// This class now lives in your API.
-// Its purpose is to provide easy access to the sounds from Teab's mod.
 public class DalekSoundEvents {
 
     private static SoundEvent createExisting(String soundName) {
