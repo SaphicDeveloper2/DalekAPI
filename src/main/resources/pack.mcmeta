@@ -1,6 +1,6 @@
 {
   "pack": {
     "pack_format": 15,
-    "description": ""
+    "description": "An api for mod developers who make addons for Teabsdoctorwhomod"
   }
 }
