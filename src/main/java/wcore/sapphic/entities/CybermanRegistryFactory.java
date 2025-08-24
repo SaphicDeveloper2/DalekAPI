@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import wcore.sapphic.renderers.BaseCybermanRenderer;
 import wcore.sapphic.renderers.BaseDalekRenderer;
 
 import java.util.HashMap;
@@ -22,7 +23,7 @@ import java.util.function.Supplier;
 
 // Correctly configured with your mod ID
 @Mod.EventBusSubscriber(modid = "dalekapi", bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class DalekRegistryFactory {
+public class CybermanRegistryFactory {
 
     private static DeferredRegister<EntityType<?>> entityTypeRegister = null;
     private static String modId = "dalekapi";
@@ -31,38 +32,38 @@ public class DalekRegistryFactory {
     // This gives us the flexibility to store any kind of renderer.
     private static final Map<Supplier<EntityType<? extends Mob>>, EntityRendererProvider<?>> RENDERER_PROVIDER_MAP = new HashMap<>();
 
-    public DalekRegistryFactory(String modId) {
-        DalekRegistryFactory.modId = modId;
+    public CybermanRegistryFactory(String modId) {
+        CybermanRegistryFactory.modId = modId;
         entityTypeRegister = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, modId);
     }
 
     /**
-     * The simple way to register a Dalek.
-     * This automatically uses the BaseDalekRenderer with your specified texture.
+     * The simple way to register a cyberman
+     * This automatically uses the BaseCybermanRenderer with your specified texture.
      * Use this for Daleks that only need a different texture.
      *
-     * @param name           The registry name for the Dalek (e.g., "paladin_dalek").
-     * @param entitySupplier The constructor for your Dalek entity class (e.g., DalekEntityPaladin::new).
+     * @param name           The registry name for the Cyberman (e.g., "paladin_dalek").
+     * @param entitySupplier The constructor for your Cyberman entity class (e.g., DalekEntityPaladin::new).
      * @param textureName    The name of the texture file in 'assets/your_mod_id/textures/entity/'.
      * @return A RegistryObject for the created EntityType.
      */
-    public static <T extends Mob> RegistryObject<EntityType<T>> registerDalek(String name, EntityType.EntityFactory<T> entitySupplier, String textureName) {
+    public static <T extends Mob> RegistryObject<EntityType<T>> registerCyberman(String name, EntityType.EntityFactory<T> entitySupplier, String textureName) {
         // Create the texture resource location.
         ResourceLocation texture = new ResourceLocation(modId, "textures/entity/" + textureName);
         // This creates a default renderer provider that uses BaseDalekRenderer.
-        EntityRendererProvider<T> rendererProvider = (context) -> new BaseDalekRenderer<>(context, texture);
+        EntityRendererProvider<T> rendererProvider = (context) -> new BaseCybermanRenderer<>(context, texture);
 
         // Call the advanced registration method with our default provider.
         return registerDalek(name, entitySupplier, rendererProvider);
     }
 
     /**
-     * The advanced way to register a Dalek with a completely custom renderer.
+     * The advanced way to register a Cyberman with a completely custom renderer.
      * Use this when you need more than just a texture swap (e.g., custom animations, layers, etc.).
      *
-     * @param name             The registry name for the Dalek.
-     * @param entitySupplier   The constructor for your Dalek entity class.
-     * @param rendererProvider A provider for your custom renderer class (e.g., MyCustomDalekRenderer::new).
+     * @param name             The registry name for the Cyberman
+     * @param entitySupplier   The constructor for your Cyberman entity class.
+     * @param rendererProvider A provider for your custom renderer class (e.g., MyCustomCybermanRenderer::new).
      * @return A RegistryObject for the created EntityType.
      */
     public static <T extends Mob> RegistryObject<EntityType<T>> registerDalek(String name, EntityType.EntityFactory<T> entitySupplier, EntityRendererProvider<T> rendererProvider) {

@@ -11,9 +11,9 @@ public class DalekSoundEvents {
     }
 
     // References to the sounds from Teab's Doctor Who Mod
-    public static final SoundEvent DALEK_AMBIENT = createExisting("entity.dalek.ambient");
-    public static final SoundEvent DALEK_HURT = createExisting("entity.dalek.hurt");
-    public static final SoundEvent DALEK_DEATH = createExisting("entity.dalek.death");
-    public static final SoundEvent DALEK_EXTERMINATE = createExisting("entity.dalek.exterminate");
+    public static final SoundEvent DALEK_AMBIENT = createExisting("dalek_move_new");
+    public static final SoundEvent DALEK_HURT = createExisting("dalek1");
+    public static final SoundEvent DALEK_DEATH = createExisting("dalek_death");
+    public static final SoundEvent DALEK_EXTERMINATE = createExisting("dalek_exterminate");
 
 }
