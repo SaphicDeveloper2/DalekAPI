@@ -45,7 +45,6 @@ public class TardisDoorBlock extends BaseEntityBlock {
                     return InteractionResult.FAIL;
                 }
 
-                // CORRECTED: Get the manager from the server's overworld, not the current world.
                 TardisExteriorManager manager = TardisExteriorManager.get(serverPlayer.getServer().overworld());
                 TardisExteriorManager.TARDISLocation location = manager.getExteriorLocation(tardisId);
 

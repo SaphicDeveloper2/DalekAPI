@@ -19,7 +19,6 @@ import java.util.UUID;
 public class TardisExteriorManager extends SavedData {
     private static final String FILE_NAME = "tardis_exterior_manager";
 
-    // We store the dimension key as a string so it can be saved to NBT
     private final Map<UUID, TARDISLocation> exteriorLocations = new HashMap<>();
 
     public static class TARDISLocation {
@@ -33,7 +32,6 @@ public class TardisExteriorManager extends SavedData {
     }
 
     public static TardisExteriorManager get(ServerLevel level) {
-        // This manager, like the interior one, is stored on the overworld.
         DimensionDataStorage storage = level.getServer().overworld().getDataStorage();
         return storage.computeIfAbsent(TardisExteriorManager::load, TardisExteriorManager::new, FILE_NAME);
     }

@@ -19,18 +19,16 @@ public class TardisDimensionManager extends SavedData {
     private final Map<UUID, BlockPos> tardisInteriors = new HashMap<>();
     private int nextAvailableX = 0;
 
-    // This is the method we'll call to get the manager instance
     public static TardisDimensionManager get(ServerLevel level) {
         DimensionDataStorage storage = level.getServer().overworld().getDataStorage();
         return storage.computeIfAbsent(TardisDimensionManager::load, TardisDimensionManager::new, FILE_NAME);
     }
 
-    // Finds the interior for a given TARDIS UUID, or creates a new one
     public BlockPos getOrCreateInteriorPos(UUID tardisId) {
         return tardisInteriors.computeIfAbsent(tardisId, id -> {
             BlockPos newPos = new BlockPos(nextAvailableX, 100, 0);
-            nextAvailableX += 1000; // Space out interiors to prevent overlap
-            setDirty(); // Mark this SavedData as needing to be saved
+            nextAvailableX += 1000;
+            setDirty();
             return newPos;
         });
     }
@@ -49,7 +47,6 @@ public class TardisDimensionManager extends SavedData {
         return nbt;
     }
 
-    // Loads the data from the world's storage
     public static TardisDimensionManager load(CompoundTag nbt) {
         TardisDimensionManager manager = new TardisDimensionManager();
         ListTag list = nbt.getList("interiors", Tag.TAG_COMPOUND);
