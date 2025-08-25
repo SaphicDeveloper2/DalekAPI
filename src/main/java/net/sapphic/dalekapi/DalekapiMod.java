@@ -21,6 +21,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import wcore.sapphic.sonic.SonicItemRegistryFactory;
 import wcore.sapphic.items.ExampleSonicItem;
 
+// Import for the new TARDIS registry
+import wcore.sapphic.tardis.TardisRegistry;
+import wcore.sapphic.tardis.dimension.TardisDimension; // <-- ADD THIS IMPORT
+
 import java.util.function.Supplier;
 import java.util.function.Function;
 import java.util.function.BiConsumer;
@@ -36,20 +40,75 @@ public class DalekapiMod {
     public static final String MODID = "dalekapi";
 
     public DalekapiMod() {
-        // Start of user code block mod constructor
-        // End of user code block mod constructor
-        MinecraftForge.EVENT_BUS.register(this);
+        // Get the main event bus for registering mod content
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        // Start of user code block mod init
+        // --- REGISTRATION CALLS ---
+        TardisRegistry.register(bus);
+
+        // --- CORRECTED --- Ensure the dimension class is loaded.
+        TardisDimension.register();
+
+        registerSonics(bus);
+
+        // Register the server tick handler
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    /**
+     * Encapsulates all initialization logic for Sonic Items.
+     * @param bus The mod's event bus.
+     */
+    private void registerSonics(IEventBus bus) {
         // Initialize the SonicItemRegistryFactory
         SonicItemRegistryFactory sonicFactory = new SonicItemRegistryFactory(MODID);
 
-        // --- Example of registering a 3D Sonic Item ---
-        // 1. Define your 3D model JSON (exported from Blockbench) as a String.
-        //    IMPORTANT: Make sure your texture paths inside the model are correct.
-        //    For this example, it expects a texture at "assets/dalekapi/textures/block/sonics/example_sonic_item.png"
-        String exampleSonicModelJson = """
+        // Register your sonic item using the advanced method, passing in the model JSON.
+        SonicItemRegistryFactory.registerSonic("example_sonic_item", ExampleSonicItem::new, getExampleSonicModelJson());
+
+        // Register the factory's item deferred register with the event bus. This is crucial.
+        sonicFactory.register(bus);
+    }
+
+    // --- NETWORKING SETUP ---
+    private static final String PROTOCOL_VERSION = "1";
+    public static final SimpleChannel PACKET_HANDLER = NetworkRegistry.newSimpleChannel(new ResourceLocation(MODID, MODID), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+    private static int messageID = 0;
+
+    public static <T> void addNetworkMessage(Class<T> messageType, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, Supplier<NetworkEvent.Context>> messageConsumer) {
+        PACKET_HANDLER.registerMessage(messageID, messageType, encoder, decoder, messageConsumer);
+        messageID++;
+    }
+
+    // --- SERVER TICK SCHEDULER ---
+    private static final Collection<AbstractMap.SimpleEntry<Runnable, Integer>> workQueue = new ConcurrentLinkedQueue<>();
+
+    public static void queueServerWork(int tick, Runnable action) {
+        if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER)
+            workQueue.add(new AbstractMap.SimpleEntry<>(action, tick));
+    }
+
+    @SubscribeEvent
+    public void tick(TickEvent.ServerTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            List<AbstractMap.SimpleEntry<Runnable, Integer>> actions = new ArrayList<>();
+            workQueue.forEach(work -> {
+                work.setValue(work.getValue() - 1);
+                if (work.getValue() == 0)
+                    actions.add(work);
+            });
+            actions.forEach(e -> e.getKey().run());
+            workQueue.removeAll(actions);
+        }
+    }
+
+    /**
+     * Helper method to provide the large JSON string for the example sonic model.
+     * In a real mod, you would typically load this from a .json file in your resources.
+     * @return A String containing the model JSON.
+     */
+    private static String getExampleSonicModelJson() {
+        return """
        {
            "credit": "Made with Blockbench",
            "textures": {
@@ -94,44 +153,5 @@ public class DalekapiMod {
            }
        }
        """;
-
-        // 2. Register your sonic item using the advanced method, passing in the model JSON.
-        SonicItemRegistryFactory.registerSonic("example_sonic_item", ExampleSonicItem::new, exampleSonicModelJson);
-
-        // Register the factory with the event bus. This is crucial.
-        sonicFactory.register(bus);
-        // End of user code block mod init
-    }
-
-    // Start of user code block mod methods
-    // End of user code block mod methods
-    private static final String PROTOCOL_VERSION = "1";
-    public static final SimpleChannel PACKET_HANDLER = NetworkRegistry.newSimpleChannel(new ResourceLocation(MODID, MODID), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
-    private static int messageID = 0;
-
-    public static <T> void addNetworkMessage(Class<T> messageType, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, Supplier<NetworkEvent.Context>> messageConsumer) {
-        PACKET_HANDLER.registerMessage(messageID, messageType, encoder, decoder, messageConsumer);
-        messageID++;
-    }
-
-    private static final Collection<AbstractMap.SimpleEntry<Runnable, Integer>> workQueue = new ConcurrentLinkedQueue<>();
-
-    public static void queueServerWork(int tick, Runnable action) {
-        if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER)
-            workQueue.add(new AbstractMap.SimpleEntry<>(action, tick));
-    }
-
-    @SubscribeEvent
-    public void tick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
-            List<AbstractMap.SimpleEntry<Runnable, Integer>> actions = new ArrayList<>();
-            workQueue.forEach(work -> {
-                work.setValue(work.getValue() - 1);
-                if (work.getValue() == 0)
-                    actions.add(work);
-            });
-            actions.forEach(e -> e.getKey().run());
-            workQueue.removeAll(actions);
-        }
     }
 }

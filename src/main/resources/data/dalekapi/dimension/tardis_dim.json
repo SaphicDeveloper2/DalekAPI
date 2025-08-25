@@ -1,0 +1,10 @@
+{
+  "type": "dalekapi:tardis_dim_type",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:the_void",
+      "layers": []
+    }
+  }
+}
