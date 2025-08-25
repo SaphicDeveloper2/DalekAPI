@@ -11,9 +11,16 @@
   "monster_spawn_light_level": 0,
   "monster_spawn_block_light_limit": 0,
   "ambient_light": 1.0,
-  "infiniburn": "#minecraft:infiniburn_overworld",
+  "infiniburn": "minecraft:infiniburn_overworld",
   "min_y": -64,
   "height": 384,
   "logical_height": 384,
-  "effects": "minecraft:the_end"
+  "effects": "minecraft:overworld",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:the_void",
+      "layers": []
+    }
+  }
 }

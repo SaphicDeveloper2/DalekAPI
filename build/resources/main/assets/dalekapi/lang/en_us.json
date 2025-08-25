@@ -1,1 +1,5 @@
-{}
+{
+  "block.dalekapi.tardis_exterior": "TARDIS Exterior",
+  "item.dalekapi.tardis_key": "TARDIS Key",
+  "block.dalekapi.tardis_door": "TARDIS Door"
+}
