@@ -21,6 +21,8 @@ import wcore.sapphic.tardis.dimension.TardisDimension;
 import wcore.sapphic.tardis.dimension.TardisDimensionManager;
 import wcore.sapphic.tardis.dimension.TardisExteriorManager;
 
+import java.util.Optional;
+
 public class TardisExteriorBlock extends BaseEntityBlock {
 
     public TardisExteriorBlock(Properties properties) {
@@ -34,40 +36,26 @@ public class TardisExteriorBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        super.setPlacedBy(level, pos, state, placer, stack);
-        if (!level.isClientSide()) {
-            if (level.dimension().equals(TardisDimension.TARDIS_DIM_KEY)) {
-                level.removeBlock(pos, false);
-                if (placer instanceof ServerPlayer player) {
-                    if (!player.getAbilities().instabuild) {
-                        player.getInventory().add(stack);
-                    }
-                    player.sendSystemMessage(Component.literal("You cannot place a TARDIS inside another TARDIS."), false);
-                }
+    public void setPlacedBy(Level pLevel, BlockPos pPos, BlockState pState, @Nullable LivingEntity pPlacer, ItemStack pStack) {
+        super.setPlacedBy(pLevel, pPos, pState, pPlacer, pStack);
+        if (!pLevel.isClientSide()) {
+            if (pLevel.getBlockEntity(pPos) instanceof TardisExteriorBlockEntity tardis) {
+                // Corrected method call
+                TardisExteriorManager.get((ServerLevel) pLevel).setExteriorLocation(tardis.getTardisId(), pLevel.dimension(), pPos);
             }
         }
     }
 
     @Override
-    public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
-        super.onPlace(state, world, pos, oldState, isMoving);
-        if (!world.isClientSide() && world.getBlockEntity(pos) instanceof TardisExteriorBlockEntity tardis) {
-            TardisExteriorManager.get((ServerLevel) world)
-                    .setExteriorLocation(tardis.getTardisId(), world.dimension(), pos);
+    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
+        if (!pLevel.isClientSide() && pState.getBlock() != pNewState.getBlock()) {
+            if (pLevel.getBlockEntity(pPos) instanceof TardisExteriorBlockEntity tardis) {
+                TardisExteriorManager.get((ServerLevel) pLevel).removeExteriorLocation(tardis.getTardisId());
+            }
         }
+        super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
 
-    @Override
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (state.hasBlockEntity() && !state.is(newState.getBlock())) {
-            if (!world.isClientSide() && world.getBlockEntity(pos) instanceof TardisExteriorBlockEntity tardis) {
-                TardisExteriorManager.get((ServerLevel) world)
-                        .removeExteriorLocation(tardis.getTardisId());
-            }
-            super.onRemove(state, world, pos, newState, isMoving);
-        }
-    }
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
@@ -78,7 +66,6 @@ public class TardisExteriorBlock extends BaseEntityBlock {
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!world.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             if (world.getBlockEntity(pos) instanceof TardisExteriorBlockEntity tardis) {
-
                 if (tardis.isLocked()) {
                     player.displayClientMessage(Component.literal("The TARDIS is locked."), true);
                     return InteractionResult.FAIL;
@@ -91,30 +78,30 @@ public class TardisExteriorBlock extends BaseEntityBlock {
                 }
 
                 TardisDimensionManager manager = TardisDimensionManager.get(tardisDim);
-                BlockPos interiorDoorPos = manager.getOrCreateInteriorPos(tardis.getTardisId());
+                TardisDimensionManager.TARDISInteriorData data = manager.getOrCreateInteriorData(tardis.getTardisId());
 
-                if (!manager.isInteriorInitialized(tardis.getTardisId())) {
+                if (!data.isInitialized) {
                     player.displayClientMessage(Component.literal("Generating TARDIS interior..."), true);
-                    TardisInteriorBuilder.build(tardisDim, interiorDoorPos, tardis.getTardisId());
+                    TardisInteriorBuilder.build(tardisDim, data.placementCenter, tardis.getTardisId());
                 }
 
-                // --- CORRECTED TELEPORT LOGIC ---
+                if (data.spawnPoint != null) {
+                    BlockPos spawnPos = data.spawnPoint;
 
-                BlockState doorState = tardisDim.getBlockState(interiorDoorPos);
-                Direction doorFacing = Direction.NORTH;
-                if (doorState.hasProperty(TardisDoorBlock.FACING)) {
-                    doorFacing = doorState.getValue(TardisDoorBlock.FACING);
+                    // The player's yaw should be based on the door's facing direction
+                    float playerYaw = Direction.NORTH.toYRot(); // Default
+                    BlockState doorState = tardisDim.getBlockState(spawnPos.below()); // Assuming the spawn is one block above the door
+                    if (doorState.hasProperty(TardisDoorBlock.FACING)) {
+                        playerYaw = doorState.getValue(TardisDoorBlock.FACING).getOpposite().toYRot();
+                    }
+
+                    serverPlayer.teleportTo(tardisDim, spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, playerYaw, 0f);
+                    serverPlayer.displayClientMessage(Component.literal("You've entered the TARDIS."), true);
+                } else {
+                    player.displayClientMessage(Component.literal("ERROR: TARDIS interior spawn point not found! Retrying..."), true);
+                    TardisInteriorBuilder.build(tardisDim, data.placementCenter, tardis.getTardisId());
+                    return InteractionResult.FAIL;
                 }
-
-                // THE FIX: Move the player in the OPPOSITE direction the door is facing.
-                // This places them on the "inside" of the door block.
-                BlockPos spawnPos = interiorDoorPos.relative(doorFacing.getOpposite());
-
-                // The rotation is correct - we want the player to face the door when they enter.
-                float playerYaw = doorFacing.toYRot();
-
-                serverPlayer.teleportTo(tardisDim, spawnPos.getX() + 0.5, spawnPos.getY(), spawnPos.getZ() + 0.5, playerYaw, 0f);
-                serverPlayer.displayClientMessage(Component.literal("You've entered the TARDIS."), true);
             }
         }
         return InteractionResult.SUCCESS;

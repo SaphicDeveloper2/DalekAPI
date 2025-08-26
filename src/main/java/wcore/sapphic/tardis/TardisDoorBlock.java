@@ -38,12 +38,11 @@ public class TardisDoorBlock extends BaseEntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-        // This restores the original 1-pixel deep hitbox.
         return switch (state.getValue(FACING)) {
             case SOUTH -> Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 3.0);
             case WEST -> Block.box(13.0, 0.0, 0.0, 16.0, 16.0, 16.0);
             case EAST -> Block.box(0.0, 0.0, 0.0, 3.0, 16.0, 16.0);
-            default -> Block.box(0.0, 0.0, 13.0, 16.0, 16.0, 16.0); // North
+            default -> Block.box(0.0, 0.0, 13.0, 16.0, 16.0, 16.0);
         };
     }
 
@@ -60,9 +59,7 @@ public class TardisDoorBlock extends BaseEntityBlock {
 
     @Override
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (world.isClientSide()) {
-            return InteractionResult.SUCCESS;
-        }
+        if (world.isClientSide()) return InteractionResult.SUCCESS;
 
         if (player instanceof ServerPlayer serverPlayer) {
             if (world.getBlockEntity(pos) instanceof TardisDoorBlockEntity doorEntity) {
@@ -77,7 +74,6 @@ public class TardisDoorBlock extends BaseEntityBlock {
 
                 if (exterior != null) {
                     ServerLevel exteriorWorld = world.getServer().getLevel(exterior.dimension);
-
                     if (exteriorWorld != null) {
                         serverPlayer.teleportTo(exteriorWorld, exterior.pos.getX() + 0.5, exterior.pos.getY(), exterior.pos.getZ() + 0.5, player.getYRot(), player.getXRot());
                         player.displayClientMessage(Component.literal("You've left the TARDIS."), true);
@@ -85,40 +81,32 @@ public class TardisDoorBlock extends BaseEntityBlock {
                     }
                 }
                 player.displayClientMessage(Component.literal("ERROR: TARDIS exterior not found!"), true);
-                return InteractionResult.FAIL;
             }
         }
         return InteractionResult.FAIL;
     }
 
-    // --- NEW CODE INTEGRATED HERE ---
-
     @Override
     public void onPlace(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving) {
         super.onPlace(pState, pLevel, pPos, pOldState, pIsMoving);
-        if (pOldState.is(pState.getBlock())) {
-            return; // Don't run logic on a block property update
-        }
+        if (pOldState.is(pState.getBlock())) return;
 
-        // Auto-linking logic runs on the server and only in the TARDIS dimension
         if (!pLevel.isClientSide() && pLevel.dimension().equals(TardisDimension.TARDIS_DIM_KEY)) {
             ServerLevel serverLevel = (ServerLevel) pLevel;
             TardisDimensionManager manager = TardisDimensionManager.get(serverLevel);
 
-            // Find which TARDIS interior this block was placed in
             Optional<UUID> tardisIdOpt = manager.findTardisForPos(pPos);
-
             if (tardisIdOpt.isPresent()) {
                 UUID tardisId = tardisIdOpt.get();
-                // Check if this specific TARDIS is waiting for a door to be replaced
-                if (manager.isAwaitingDoor(tardisId)) {
-                    BlockEntity be = pLevel.getBlockEntity(pPos);
-                    if (be instanceof TardisDoorBlockEntity doorEntity) {
-                        // Link the new door and tell the manager it has been replaced
-                        doorEntity.setTardisId(tardisId);
-                        manager.markDoorAsReplaced(tardisId);
+                manager.getInteriorData(tardisId).ifPresent(data -> {
+                    if (data.isAwaitingDoor) {
+                        if (pLevel.getBlockEntity(pPos) instanceof TardisDoorBlockEntity doorEntity) {
+                            doorEntity.setTardisId(tardisId);
+                            data.isAwaitingDoor = false;
+                            manager.setDirty();
+                        }
                     }
-                }
+                });
             }
         }
     }
@@ -126,21 +114,18 @@ public class TardisDoorBlock extends BaseEntityBlock {
     @Override
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
         if (pState.hasBlockEntity() && !pState.is(pNewState.getBlock())) {
-            // This logic runs when the block is broken
             if (!pLevel.isClientSide()) {
-                BlockEntity be = pLevel.getBlockEntity(pPos);
-                // Check if the door was linked to a TARDIS before it was broken
-                if (be instanceof TardisDoorBlockEntity doorEntity && doorEntity.getTardisId() != null) {
-                    // Tell the manager that this specific TARDIS is now missing its door
+                if (pLevel.getBlockEntity(pPos) instanceof TardisDoorBlockEntity doorEntity && doorEntity.getTardisId() != null) {
                     TardisDimensionManager manager = TardisDimensionManager.get((ServerLevel) pLevel);
-                    manager.markDoorAsBroken(doorEntity.getTardisId());
+                    manager.getInteriorData(doorEntity.getTardisId()).ifPresent(data -> {
+                        data.isAwaitingDoor = true;
+                        manager.setDirty();
+                    });
                 }
             }
         }
         super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
-
-    // --- REST OF THE ORIGINAL CODE ---
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {

@@ -9,120 +9,122 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public class TardisDimensionManager extends SavedData {
     private static final String FILE_NAME = "tardis_dimension_manager";
-
-    private final Map<UUID, BlockPos> tardisInteriors = new HashMap<>();
     private int nextAvailableX = 0;
-    private final Set<UUID> interiorsAwaitingDoor = new HashSet<>();
-    // --- NEW: A set to track which interiors have been built ---
-    private final Set<UUID> initializedInteriors = new HashSet<>();
+
+    // The single map holding all data for every TARDIS interior.
+    private final Map<UUID, TARDISInteriorData> interiorDataMap = new HashMap<>();
+
+    /**
+     * A data-holding class that contains all information about a single TARDIS interior.
+     * This is similar to the TARDISLocation class in your exterior manager.
+     */
+    public static class TARDISInteriorData {
+        public final BlockPos placementCenter;
+        public BlockPos spawnPoint; // Can be null until the interior is built
+        public boolean isInitialized = false;
+        public boolean isAwaitingDoor = false;
+
+        public TARDISInteriorData(BlockPos placementCenter) {
+            this.placementCenter = placementCenter;
+        }
+
+        // Methods to save and load this specific object's data
+        public CompoundTag save() {
+            CompoundTag nbt = new CompoundTag();
+            nbt.put("placementCenter", NbtUtils.writeBlockPos(placementCenter));
+            if (spawnPoint != null) {
+                nbt.put("spawnPoint", NbtUtils.writeBlockPos(spawnPoint));
+            }
+            nbt.putBoolean("isInitialized", isInitialized);
+            nbt.putBoolean("isAwaitingDoor", isAwaitingDoor);
+            return nbt;
+        }
+
+        public static TARDISInteriorData load(CompoundTag nbt) {
+            BlockPos placementCenter = NbtUtils.readBlockPos(nbt.getCompound("placementCenter"));
+            TARDISInteriorData data = new TARDISInteriorData(placementCenter);
+            if (nbt.contains("spawnPoint")) {
+                data.spawnPoint = NbtUtils.readBlockPos(nbt.getCompound("spawnPoint"));
+            }
+            data.isInitialized = nbt.getBoolean("isInitialized");
+            data.isAwaitingDoor = nbt.getBoolean("isAwaitingDoor");
+            return data;
+        }
+    }
+
+    public TardisDimensionManager() {}
 
     public static TardisDimensionManager get(ServerLevel level) {
         DimensionDataStorage storage = level.getServer().overworld().getDataStorage();
         return storage.computeIfAbsent(TardisDimensionManager::load, TardisDimensionManager::new, FILE_NAME);
     }
 
-    public BlockPos getOrCreateInteriorPos(UUID tardisId) {
-        return tardisInteriors.computeIfAbsent(tardisId, id -> {
-            BlockPos newPos = new BlockPos(nextAvailableX, 100, 0);
+    /**
+     * Gets the data object for a TARDIS. Creates a new one if it doesn't exist.
+     */
+    public TARDISInteriorData getOrCreateInteriorData(UUID tardisId) {
+        return interiorDataMap.computeIfAbsent(tardisId, id -> {
+            BlockPos newCenter = new BlockPos(nextAvailableX, 100, 0);
             nextAvailableX += 1000;
             setDirty();
-            return newPos;
+            return new TARDISInteriorData(newCenter);
         });
     }
 
-    // --- NEW METHODS for tracking initialization ---
-    public boolean isInteriorInitialized(UUID tardisId) {
-        return initializedInteriors.contains(tardisId);
+    /**
+     * Helper method to get data for an existing TARDIS.
+     */
+    public Optional<TARDISInteriorData> getInteriorData(UUID tardisId) {
+        return Optional.ofNullable(interiorDataMap.get(tardisId));
     }
 
-    public void markInteriorAsInitialized(UUID tardisId) {
-        initializedInteriors.add(tardisId);
-        setDirty();
-    }
-
-
-    // --- (Existing methods for door linking) ---
+    /**
+     * Finds which TARDIS territory a position is in.
+     */
     public Optional<UUID> findTardisForPos(BlockPos posInQuestion) {
-        for (Map.Entry<UUID, BlockPos> entry : tardisInteriors.entrySet()) {
-            if (posInQuestion.distSqr(entry.getValue()) < 200 * 200) {
+        for (Map.Entry<UUID, TARDISInteriorData> entry : interiorDataMap.entrySet()) {
+            if (posInQuestion.distSqr(entry.getValue().placementCenter) < 500 * 500) {
                 return Optional.of(entry.getKey());
             }
         }
         return Optional.empty();
     }
 
-    public boolean isAwaitingDoor(UUID tardisId) {
-        return interiorsAwaitingDoor.contains(tardisId);
-    }
-
-    public void markDoorAsBroken(UUID tardisId) {
-        interiorsAwaitingDoor.add(tardisId);
-        setDirty();
-    }
-
-    public void markDoorAsReplaced(UUID tardisId) {
-        interiorsAwaitingDoor.remove(tardisId);
-        setDirty();
+    public void setDirty() {
+        super.setDirty();
     }
 
     @Override
     public CompoundTag save(CompoundTag nbt) {
-        // ... (save tardisInteriors and nextAvailableX as before)
-        ListTag interiorsList = new ListTag();
-        tardisInteriors.forEach((uuid, pos) -> {
+        ListTag dataList = new ListTag();
+        interiorDataMap.forEach((uuid, data) -> {
             CompoundTag entry = new CompoundTag();
             entry.putUUID("id", uuid);
-            entry.put("pos", NbtUtils.writeBlockPos(pos));
-            interiorsList.add(entry);
+            entry.put("data", data.save());
+            dataList.add(entry);
         });
-        nbt.put("interiors", interiorsList);
+        nbt.put("interiorDataMap", dataList);
         nbt.putInt("nextX", nextAvailableX);
-
-        // ... (save interiorsAwaitingDoor as before)
-        ListTag awaitingDoorsList = new ListTag();
-        interiorsAwaitingDoor.forEach(uuid -> {
-            CompoundTag idTag = new CompoundTag();
-            idTag.putUUID("id", uuid);
-            awaitingDoorsList.add(idTag);
-        });
-        nbt.put("awaitingDoors", awaitingDoorsList);
-
-        // --- NEW: Save the initialized interiors list ---
-        ListTag initializedList = new ListTag();
-        initializedInteriors.forEach(uuid -> {
-            CompoundTag idTag = new CompoundTag();
-            idTag.putUUID("id", uuid);
-            initializedList.add(idTag);
-        });
-        nbt.put("initializedInteriors", initializedList);
-
         return nbt;
     }
 
     public static TardisDimensionManager load(CompoundTag nbt) {
         TardisDimensionManager manager = new TardisDimensionManager();
-        // ... (load tardisInteriors, nextAvailableX, and interiorsAwaitingDoor as before)
-        ListTag interiorsList = nbt.getList("interiors", Tag.TAG_COMPOUND);
-        for (int i = 0; i < interiorsList.size(); i++) {
-            CompoundTag entry = interiorsList.getCompound(i);
-            manager.tardisInteriors.put(entry.getUUID("id"), NbtUtils.readBlockPos(entry.getCompound("pos")));
+        ListTag dataList = nbt.getList("interiorDataMap", Tag.TAG_COMPOUND);
+        for (int i = 0; i < dataList.size(); i++) {
+            CompoundTag entry = dataList.getCompound(i);
+            UUID id = entry.getUUID("id");
+            TARDISInteriorData data = TARDISInteriorData.load(entry.getCompound("data"));
+            manager.interiorDataMap.put(id, data);
         }
         manager.nextAvailableX = nbt.getInt("nextX");
-        ListTag awaitingDoorsList = nbt.getList("awaitingDoors", Tag.TAG_COMPOUND);
-        for (int i = 0; i < awaitingDoorsList.size(); i++) {
-            manager.interiorsAwaitingDoor.add(awaitingDoorsList.getCompound(i).getUUID("id"));
-        }
-
-        // --- NEW: Load the initialized interiors list ---
-        ListTag initializedList = nbt.getList("initializedInteriors", Tag.TAG_COMPOUND);
-        for (int i = 0; i < initializedList.size(); i++) {
-            manager.initializedInteriors.add(initializedList.getCompound(i).getUUID("id"));
-        }
-
         return manager;
     }
 }
