@@ -13,14 +13,14 @@ import wcore.sapphic.tardis.flight.DimensionSelector.DimensionSelectorBlock;
 import wcore.sapphic.tardis.flight.DimensionSelector.DimensionSelectorBlockEntity;
 import wcore.sapphic.tardis.flight.DimensionSelectorFactory;
 // No longer importing from the 'flight' package
-// import wcore.sapphic.tardis.flight.client.Renderer.DimensionSelectorModel;
+import wcore.sapphic.tardis.client.DimensionSelectorRenderer;
 
 public class DimensionSelectorRenderer implements BlockEntityRenderer<DimensionSelectorBlockEntity> {
 
-    private final wcore.sapphic.tardis.client.renderer.DimensionSelectorModel model;
+    private final DimensionSelectorModel model;
 
     public DimensionSelectorRenderer(BlockEntityRendererProvider.Context context) {
-        this.model = new wcore.sapphic.tardis.client.renderer.DimensionSelectorModel();
+        this.model = new DimensionSelectorModel();
     }
 
     @Override
