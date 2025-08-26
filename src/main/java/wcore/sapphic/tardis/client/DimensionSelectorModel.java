@@ -1,4 +1,4 @@
-package wcore.sapphic.tardis.client.renderer; // Corrected package
+package wcore.sapphic.tardis.client; // Corrected package
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
