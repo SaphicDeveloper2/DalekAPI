@@ -1,1 +1,0 @@
-this package is for handling specifically the dimension selector
