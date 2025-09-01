@@ -1,95 +1,65 @@
-// Placed in your original package: wcore.sapphic.entities
 package wcore.sapphic.entities;
 
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.item.Item;
+import net.minecraftforge.common.ForgeSpawnEggItem;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import wcore.sapphic.renderers.BaseDalekRenderer;
+import wcore.sapphic.ai.AbstractDalekEntity;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
-// Correctly configured with your mod ID
-@Mod.EventBusSubscriber(modid = "dalekapi", bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class DalekRegistryFactory {
 
-    private static DeferredRegister<EntityType<?>> entityTypeRegister = null;
-    private static String modId = "dalekapi";
-
-    // This map now stores the provider for the renderer, not just the texture.
-    // This gives us the flexibility to store any kind of renderer.
-    private static final Map<Supplier<EntityType<? extends Mob>>, EntityRendererProvider<?>> RENDERER_PROVIDER_MAP = new HashMap<>();
+    private final DeferredRegister<EntityType<?>> entityTypeRegister;
+    private final DeferredRegister<Item> itemRegister;
+    private final String modId;
 
     public DalekRegistryFactory(String modId) {
-        DalekRegistryFactory.modId = modId;
-        entityTypeRegister = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, modId);
+        this.modId = modId;
+        this.entityTypeRegister = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, modId);
+        this.itemRegister = DeferredRegister.create(ForgeRegistries.ITEMS, modId);
     }
 
     /**
-     * The simple way to register a Dalek.
-     * This automatically uses the BaseDalekRenderer with your specified texture.
-     * Use this for Daleks that only need a different texture.
+     * Registers a new Dalek entity type, its attributes, and a spawn egg.
+     * Renderer registration must now be done separately on the client side.
      *
-     * @param name           The registry name for the Dalek (e.g., "paladin_dalek").
-     * @param entitySupplier The constructor for your Dalek entity class (e.g., DalekEntityPaladin::new).
-     * @param textureName    The name of the texture file in 'assets/your_mod_id/textures/entity/'.
+     * @param name           The registry name for the dalek (e.g., "special_dalek").
+     * @param entitySupplier A supplier for the new entity class (e.g., SpecialDalekEntity::new).
+     * @param attributeSupplier A supplier for the entity's attributes.
      * @return A RegistryObject for the created EntityType.
      */
-    public static <T extends Mob> RegistryObject<EntityType<T>> registerDalek(String name, EntityType.EntityFactory<T> entitySupplier, String textureName) {
-        // Create the texture resource location.
-        ResourceLocation texture = new ResourceLocation(modId, "textures/entity/" + textureName);
-        // This creates a default renderer provider that uses BaseDalekRenderer.
-        EntityRendererProvider<T> rendererProvider = (context) -> new BaseDalekRenderer<>(context, texture);
+    public <T extends AbstractDalekEntity> RegistryObject<EntityType<T>> registerDalek(
+            String name,
+            EntityType.EntityFactory<T> entitySupplier,
+            Supplier<AttributeSupplier.Builder> attributeSupplier) {
 
-        // Call the advanced registration method with our default provider.
-        return registerDalek(name, entitySupplier, rendererProvider);
-    }
-
-    /**
-     * The advanced way to register a Dalek with a completely custom renderer.
-     * Use this when you need more than just a texture swap (e.g., custom animations, layers, etc.).
-     *
-     * @param name             The registry name for the Dalek.
-     * @param entitySupplier   The constructor for your Dalek entity class.
-     * @param rendererProvider A provider for your custom renderer class (e.g., MyCustomDalekRenderer::new).
-     * @return A RegistryObject for the created EntityType.
-     */
-    public static <T extends Mob> RegistryObject<EntityType<T>> registerDalek(String name, EntityType.EntityFactory<T> entitySupplier, EntityRendererProvider<T> rendererProvider) {
         RegistryObject<EntityType<T>> entityType = entityTypeRegister.register(name,
                 () -> EntityType.Builder.of(entitySupplier, MobCategory.MONSTER)
-                        .sized(0.9F, 1.8F)
-                        .build(new ResourceLocation(modId, name).toString())
-        );
+                        .sized(0.9f, 1.9f)
+                        .build(modId + ":" + name));
 
-        // Store the renderer provider (either the default or the custom one) in the map.
-        RENDERER_PROVIDER_MAP.put(entityType::get, rendererProvider);
+        // Register the spawn egg for this Dalek
+        itemRegister.register(name + "_spawn_egg",
+                () -> new ForgeSpawnEggItem(entityType, 0xC0C0C0, 0x808080, new Item.Properties()));
+
+        // We can't register attributes directly here, so we need a separate event listener.
+        // It's best to handle this in your main mod class alongside other attribute registrations.
+        // FMLJavaModLoadingContext.get().getModEventBus().addListener((EntityAttributeCreationEvent event) -> {
+        //    event.put(entityType.get(), attributeSupplier.get().build());
+        // });
 
         return entityType;
     }
 
-
     public void register(IEventBus modEventBus) {
         entityTypeRegister.register(modEventBus);
-    }
-
-    @SubscribeEvent
-    @SuppressWarnings({"unchecked", "rawtypes"}) // Suppress warnings for the necessary cast
-    public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-        // This now registers any type of renderer provider from our map.
-        RENDERER_PROVIDER_MAP.forEach((entityTypeSupplier, provider) -> {
-            event.registerEntityRenderer(entityTypeSupplier.get(), (EntityRendererProvider) provider);
-        });
-        RENDERER_PROVIDER_MAP.clear(); // Clear the map after use
+        itemRegister.register(modEventBus);
     }
 }

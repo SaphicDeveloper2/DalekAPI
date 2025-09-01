@@ -1,5 +1,6 @@
 package wcore.sapphic.entities;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -13,6 +14,11 @@ public class ExampleDalekEntity extends AbstractDalekEntity {
 
     public ExampleDalekEntity(EntityType<? extends Monster> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    public ResourceLocation getTexture() {
+        return null;
     }
 
     public static AttributeSupplier.Builder createAttributes() {

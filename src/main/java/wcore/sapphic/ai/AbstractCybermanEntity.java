@@ -117,6 +117,8 @@ public abstract class AbstractCybermanEntity extends Monster implements RangedAt
         }
     }
 
+    public abstract ResourceLocation getTexture();
+
     // --- ATTRIBUTES ---
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()

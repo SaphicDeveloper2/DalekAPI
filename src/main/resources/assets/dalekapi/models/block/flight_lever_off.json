@@ -1,7 +1,0 @@
-{
-  "parent": "teabs_doctor_who_mod:custom/toyotaflightleveroff",
-  "textures": {
-    "0": "teabs_doctor_who_mod:block/toyotaflightlever",
-    "particle": "teabs_doctor_who_mod:block/toyotaflightlever"
-  }
-}

@@ -1,6 +1,7 @@
 package wcore.sapphic.ai;
 
 // Import necessary classes
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
@@ -109,6 +110,8 @@ public abstract class AbstractDalekEntity extends Monster implements RangedAttac
             LOGGER.error("Class {} is not a valid LivingEntity and cannot be a Dalek target.", className, e);
         }
     }
+
+    public abstract ResourceLocation getTexture();
 
     // --- ATTRIBUTES ADDED HERE ---
     public static AttributeSupplier.Builder createAttributes() {
