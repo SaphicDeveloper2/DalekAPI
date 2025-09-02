@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.Blocks;
 
 public class ExampleSonicItem extends BaseSonicItem {
 
-    public ExampleSonicItem() {
+    public ExampleSonicItem(Properties properties) {
         super();
     }
 
@@ -31,7 +31,6 @@ public class ExampleSonicItem extends BaseSonicItem {
             }
         } else {
             // If it's not diamond ore, just perform the default action.
-            super.onSonicUse(world, pos, player);
         }
     }
 }
