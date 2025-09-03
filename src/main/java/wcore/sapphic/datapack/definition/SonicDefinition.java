@@ -2,26 +2,63 @@ package wcore.sapphic.datapack.definition;
 
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.resources.ResourceLocation;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
-public class SonicDefinition {
-    private transient ResourceLocation id;
+/**
+ * Represents the data structure for a Sonic Screwdriver defined in a JSON file.
+ * This is an immutable data holder class parsed by GSON.
+ */
+public final class SonicDefinition {
 
-    @SerializedName("model_location")
-    private String modelLocation;
-    @SerializedName("texture_location")
-    private String textureLocation;
-    @SerializedName("use_sound")
+    @SerializedName("java_type")
+    private final String javaType;
+
+    @SerializedName("display_name")
+    private final String displayName;
+
+    @SerializedName("texture")
+    private final String texture;
+
+    @SerializedName("model")
+    private final String model;
+
+
+    // GSON constructor
+    private SonicDefinition(String javaType, String displayName, String texture, String model) {
+        this.javaType = javaType;
+        this.displayName = displayName;
+        this.texture = texture;
+        this.model = model;
+    }
+
+    /**
+     * @return The optional ResourceLocation for a code-defined Java type to link this definition to.
+     */
     @Nullable
-    private String useSound;
-    @SerializedName("repair_material")
-    @Nullable
-    private String repairMaterial;
+    public ResourceLocation getJavaType() {
+        return javaType != null ? new ResourceLocation(javaType) : null;
+    }
 
-    public ResourceLocation getId() { return id; }
-    public void setId(ResourceLocation id) { this.id = id; }
-    public String getModelLocation() { return modelLocation; }
-    public String getTextureLocation() { return textureLocation; }
-    @Nullable public String getUseSound() { return useSound; }
-    @Nullable public ResourceLocation getRepairMaterial() { return repairMaterial != null ? new ResourceLocation(repairMaterial) : null; }
+    /**
+     * @return The display name key for this sonic item.
+     */
+    public String getDisplayName() {
+        return displayName != null ? displayName : "item.dalekapi.data_sonic";
+    }
+
+    /**
+     * @return The ResourceLocation of the item texture for this sonic, as defined in a pack.
+     */
+    @Nullable
+    public ResourceLocation getTexture() {
+        return texture != null ? new ResourceLocation(texture) : null;
+    }
+
+    /**
+     * @return The ResourceLocation of the 3D model for this sonic, as defined in a pack.
+     */
+    @Nullable
+    public ResourceLocation getModel() {
+        return model != null ? new ResourceLocation(model) : null;
+    }
 }

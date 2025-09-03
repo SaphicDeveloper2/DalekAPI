@@ -2,38 +2,69 @@ package wcore.sapphic.datapack;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.profiling.ProfilerFiller;
-import org.slf4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import wcore.sapphic.datapack.definition.CybermanDefinition;
-import java.util.HashMap;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
-public class CybermanManager extends SimpleJsonResourceReloadListener {
-    private static final Logger LOGGER = LogUtils.getLogger();
+public final class CybermanManager {
+    public static final CybermanManager INSTANCE = new CybermanManager();
     private static final Gson GSON = new GsonBuilder().create();
-    public static final Map<ResourceLocation, CybermanDefinition> CYBERMEN = new HashMap<>();
+    private static final Logger LOGGER = LogManager.getLogger();
+    private static final String DIRECTORY_NAME = "cybermen";
 
-    public CybermanManager() {
-        super(GSON, "cybermen");
+    private final Map<ResourceLocation, CybermanDefinition> definitions = new ConcurrentHashMap<>();
+
+    private CybermanManager() {}
+
+    public Map<ResourceLocation, CybermanDefinition> getDefinitions() {
+        return Collections.unmodifiableMap(this.definitions);
     }
 
-    @Override
-    protected void apply(Map<ResourceLocation, JsonElement> pObject, ResourceManager pResourceManager, ProfilerFiller pProfiler) {
-        CYBERMEN.clear();
-        pObject.forEach((location, element) -> {
-            try {
-                CybermanDefinition definition = GSON.fromJson(element, CybermanDefinition.class);
-                definition.setId(location);
-                CYBERMEN.put(location, definition);
-            } catch (Exception e) {
-                LOGGER.error("Couldn't parse Cyberman definition {}", location, e);
-            }
-        });
-        LOGGER.info("Loaded {} Cyberman definitions.", CYBERMEN.size());
+    public void clear() {
+        this.definitions.clear();
+    }
+
+    /**
+     * Loads all Cyberman definitions from a specific pack.
+     *
+     * @param packRoot The root directory of the pack (or the root of the zip filesystem).
+     * @param packId   The sanitized, lowercase ID of the pack, used as the namespace.
+     */
+    public void loadFromPack(Path packRoot, String packId) {
+        final Path cybermanDir = packRoot.resolve(DIRECTORY_NAME);
+        if (Files.notExists(cybermanDir)) {
+            return;
+        }
+
+        try (Stream<Path> stream = Files.walk(cybermanDir)) {
+            stream.filter(path -> path.toString().endsWith(".json")).forEach(path -> {
+                String fileName = path.getFileName().toString();
+                String id = fileName.substring(0, fileName.lastIndexOf('.'));
+                ResourceLocation loc = new ResourceLocation(packId, id);
+
+                try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(path))) {
+                    CybermanDefinition def = GSON.fromJson(reader, CybermanDefinition.class);
+                    if (def != null) {
+                        this.definitions.put(loc, def);
+                        LOGGER.debug("Loaded Cyberman definition: {}", loc);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Failed to load or parse Cyberman definition: {}", path, e);
+                }
+            });
+        } catch (IOException e) {
+            LOGGER.error("Error walking Cyberman directory for pack: {}", packId, e);
+        }
     }
 }
+

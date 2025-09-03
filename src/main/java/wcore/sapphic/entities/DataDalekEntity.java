@@ -12,6 +12,7 @@ import wcore.sapphic.ai.AbstractDalekEntity;
 import wcore.sapphic.api.events.DalekTickEvent;
 import wcore.sapphic.datapack.DalekManager;
 import wcore.sapphic.datapack.definition.DalekDefinition;
+import wcore.sapphic.packs.PackAssetManager;
 
 import javax.annotation.Nullable;
 
@@ -55,8 +56,12 @@ public class DataDalekEntity extends AbstractDalekEntity {
 
     @Nullable
     public DalekDefinition getDefinition() {
+        if (this.level().isClientSide()) {
+            return DalekManager.INSTANCE.getDefinitions().get(getDefinitionId());
+        }
         if (this.cachedDefinition == null) {
-            this.cachedDefinition = DalekManager.DALEKS.get(getDefinitionId());
+            // Corrected to use the singleton instance
+            this.cachedDefinition = DalekManager.INSTANCE.getDefinitions().get(getDefinitionId());
         }
         return this.cachedDefinition;
     }
@@ -68,12 +73,28 @@ public class DataDalekEntity extends AbstractDalekEntity {
             DalekDefinition def = getDefinition();
             if (def != null) {
                 MinecraftForge.EVENT_BUS.post(new DalekTickEvent(this, def));
+                wcore.sapphic.api.registry.Factory.getDalekBehavior(getDefinitionId()).onTick(this, def);
             }
         }
     }
 
     @Override
     public ResourceLocation getTexture() {
+        DalekDefinition def = getDefinition();
+        if (def != null && def.getTexture() != null) {
+            // Correctly implemented to use the PackAssetManager
+            return PackAssetManager.INSTANCE.getTexture(def.getTexture());
+        }
         return null;
     }
+
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        DalekDefinition def = getDefinition();
+        if (def != null) {
+            wcore.sapphic.api.registry.Factory.getDalekBehavior(getDefinitionId()).configureGoals(this, def);
+        }
+    }
 }
+
