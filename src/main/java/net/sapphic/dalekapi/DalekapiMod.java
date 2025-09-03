@@ -1,90 +1,75 @@
 package net.sapphic.dalekapi;
 
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Rarity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import wcore.sapphic.api.registry.TypesRegistries;
-import wcore.sapphic.commands.ReloadPacksCommand;
-import wcore.sapphic.datapack.SonicManager;
-import wcore.sapphic.init.ModEntities;
-import wcore.sapphic.init.ModItems;
-import wcore.sapphic.items.PackagedSonicItem;
-import wcore.sapphic.packs.PackLoader;
+import org.apache.logging.log4j.LogManager;
 
-@Mod(DalekapiMod.MODID)
+import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.fml.util.thread.SidedThreadGroups;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.common.MinecraftForge;
+
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+
+import java.util.function.Supplier;
+import java.util.function.Function;
+import java.util.function.BiConsumer;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.List;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.AbstractMap;
+
+@Mod("dalekapi")
 public class DalekapiMod {
-    public static final String MODID = "dalekapi";
-    private static final Logger LOGGER = LogManager.getLogger(MODID);
+	public static final Logger LOGGER = LogManager.getLogger(DalekapiMod.class);
+	public static final String MODID = "dalekapi";
 
-    public DalekapiMod() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+	public DalekapiMod() {
+		// Start of user code block mod constructor
+		// End of user code block mod constructor
+		MinecraftForge.EVENT_BUS.register(this);
+		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        // Load packs in the constructor to discover sonics before registration
-        LOGGER.info("Initializing PackLoader for DalekAPI...");
-        PackLoader.initialize();
+		// Start of user code block mod init
+		// End of user code block mod init
+	}
 
-        // Register our deferred registries for other things
-        ModItems.register(modEventBus);
-        ModEntities.register(modEventBus);
-        TypesRegistries.register(modEventBus);
+	// Start of user code block mod methods
+	// End of user code block mod methods
+	private static final String PROTOCOL_VERSION = "1";
+	public static final SimpleChannel PACKET_HANDLER = NetworkRegistry.newSimpleChannel(new ResourceLocation(MODID, MODID), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+	private static int messageID = 0;
 
-        modEventBus.addListener(this::commonSetup);
-    }
+	public static <T> void addNetworkMessage(Class<T> messageType, BiConsumer<T, FriendlyByteBuf> encoder, Function<FriendlyByteBuf, T> decoder, BiConsumer<T, Supplier<NetworkEvent.Context>> messageConsumer) {
+		PACKET_HANDLER.registerMessage(messageID, messageType, encoder, decoder, messageConsumer);
+		messageID++;
+	}
 
-    private void commonSetup(final FMLCommonSetupEvent event) {
-        // Common setup tasks can go here. Pack loading is now done earlier.
-    }
+	private static final Collection<AbstractMap.SimpleEntry<Runnable, Integer>> workQueue = new ConcurrentLinkedQueue<>();
 
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class ModEventBusEvents {
-        /**
-         * This is the modern Forge event for dynamic registration.
-         * It fires after static registration, allowing us to register items
-         * based on the packs we loaded in the constructor.
-         */
-        @SubscribeEvent
-        public static void onRegisterItems(RegisterEvent event) {
-            // We only want to run this for the Item registry
-            if (event.getRegistryKey().equals(ForgeRegistries.Keys.ITEMS)) {
-                LOGGER.info("Dynamically registering sonic screwdrivers...");
-                SonicManager.INSTANCE.getDefinitions().forEach((id, definition) -> {
-                    // For each sonic definition, create and register a new item
-                    Item.Properties properties = new Item.Properties().stacksTo(1).rarity(Rarity.RARE);
-                    PackagedSonicItem sonicItem = new PackagedSonicItem(properties, id);
-                    event.register(ForgeRegistries.Keys.ITEMS, id, () -> sonicItem);
-                    LOGGER.debug("Registered sonic item: {}", id);
-                });
-                LOGGER.info("Finished registering {} sonic screwdrivers.", SonicManager.INSTANCE.getDefinitions().size());
-            }
-        }
-    }
+	public static void queueServerWork(int tick, Runnable action) {
+		if (Thread.currentThread().getThreadGroup() == SidedThreadGroups.SERVER)
+			workQueue.add(new AbstractMap.SimpleEntry<>(action, tick));
+	}
 
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-    public static class ForgeEvents {
-        @SubscribeEvent
-        public static void onRegisterCommands(RegisterCommandsEvent event) {
-            ReloadPacksCommand.register(event.getDispatcher());
-        }
-
-        @SubscribeEvent
-        public static void onServerStarting(ServerStartingEvent event) {
-            LOGGER.info("DalekAPI server is starting: {}", event.getServer().getServerModName());
-        }
-    }
-
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-    public static class ClientForgeEvents {
-        // Client-only Forge events can go here
-    }
+	@SubscribeEvent
+	public void tick(TickEvent.ServerTickEvent event) {
+		if (event.phase == TickEvent.Phase.END) {
+			List<AbstractMap.SimpleEntry<Runnable, Integer>> actions = new ArrayList<>();
+			workQueue.forEach(work -> {
+				work.setValue(work.getValue() - 1);
+				if (work.getValue() == 0)
+					actions.add(work);
+			});
+			actions.forEach(e -> e.getKey().run());
+			workQueue.removeAll(actions);
+		}
+	}
 }

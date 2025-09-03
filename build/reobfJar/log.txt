@@ -136,40 +136,30 @@ Adding Libraries to Inheritance
 Reading Input: C:\Users\Samantha\MCreatorWorkspaces\dalekapi\build\libs\modid-1.0.jar
 Adding input to inheritance map
 Processing entries
+Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity$1/getAttackReachSqr(Lnet/minecraft/world/entity/LivingEntity;)D from net/minecraft/world/entity/ai/goal/MeleeAttackGoal/getAttackReachSqr(Lnet/minecraft/world/entity/LivingEntity;)D: getAttackReachSqr -> m_6639_
 Conflicting propagated mapping for wcore/sapphic/ai/AbstractDalekEntity$1/canContinueToUse()Z from net/minecraft/world/entity/ai/goal/RangedAttackGoal/canContinueToUse()Z: canContinueToUse -> m_8045_
 Conflicting propagated mapping for wcore/sapphic/ai/AbstractDalekEntity$2/getAttackReachSqr(Lnet/minecraft/world/entity/LivingEntity;)D from net/minecraft/world/entity/ai/goal/MeleeAttackGoal/getAttackReachSqr(Lnet/minecraft/world/entity/LivingEntity;)D: getAttackReachSqr -> m_6639_
-Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity$1/getAttackReachSqr(Lnet/minecraft/world/entity/LivingEntity;)D from net/minecraft/world/entity/ai/goal/MeleeAttackGoal/getAttackReachSqr(Lnet/minecraft/world/entity/LivingEntity;)D: getAttackReachSqr -> m_6639_
 Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity/getHurtSound(Lnet/minecraft/world/damagesource/DamageSource;)Lnet/minecraft/sounds/SoundEvent; from net/minecraft/world/entity/monster/Monster/getHurtSound(Lnet/minecraft/world/damagesource/DamageSource;)Lnet/minecraft/sounds/SoundEvent;: getHurtSound -> m_7975_
 Conflicting propagated mapping for wcore/sapphic/ai/AbstractDalekEntity/getHurtSound(Lnet/minecraft/world/damagesource/DamageSource;)Lnet/minecraft/sounds/SoundEvent; from net/minecraft/world/entity/monster/Monster/getHurtSound(Lnet/minecraft/world/damagesource/DamageSource;)Lnet/minecraft/sounds/SoundEvent;: getHurtSound -> m_7975_
 Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity/getDeathSound()Lnet/minecraft/sounds/SoundEvent; from net/minecraft/world/entity/monster/Monster/getDeathSound()Lnet/minecraft/sounds/SoundEvent;: getDeathSound -> m_5592_
 Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity/getAmbientSound()Lnet/minecraft/sounds/SoundEvent; from net/minecraft/world/entity/Mob/getAmbientSound()Lnet/minecraft/sounds/SoundEvent;: getAmbientSound -> m_7515_
-Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity/playStepSound(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V from net/minecraft/world/entity/Entity/playStepSound(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V: playStepSound -> m_7355_
 Conflicting propagated mapping for wcore/sapphic/ai/AbstractDalekEntity/getDeathSound()Lnet/minecraft/sounds/SoundEvent; from net/minecraft/world/entity/monster/Monster/getDeathSound()Lnet/minecraft/sounds/SoundEvent;: getDeathSound -> m_5592_
-Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity/registerGoals()V from net/minecraft/world/entity/Mob/registerGoals()V: registerGoals -> m_8099_
 Conflicting propagated mapping for wcore/sapphic/ai/AbstractDalekEntity/getAmbientSound()Lnet/minecraft/sounds/SoundEvent; from net/minecraft/world/entity/Mob/getAmbientSound()Lnet/minecraft/sounds/SoundEvent;: getAmbientSound -> m_7515_
-Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity/performRangedAttack(Lnet/minecraft/world/entity/LivingEntity;F)V from net/minecraft/world/entity/monster/RangedAttackMob/performRangedAttack(Lnet/minecraft/world/entity/LivingEntity;F)V: performRangedAttack -> m_6504_
 Conflicting propagated mapping for wcore/sapphic/ai/AbstractDalekEntity/registerGoals()V from net/minecraft/world/entity/Mob/registerGoals()V: registerGoals -> m_8099_
-Conflicting propagated mapping for wcore/sapphic/entities/DataCybermanEntity/readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V from net/minecraft/world/entity/Mob/readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V: readAdditionalSaveData -> m_7378_
+Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity/playStepSound(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V from net/minecraft/world/entity/Entity/playStepSound(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)V: playStepSound -> m_7355_
+Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity/registerGoals()V from net/minecraft/world/entity/Mob/registerGoals()V: registerGoals -> m_8099_
 Conflicting propagated mapping for wcore/sapphic/ai/AbstractDalekEntity/performRangedAttack(Lnet/minecraft/world/entity/LivingEntity;F)V from net/minecraft/world/entity/monster/RangedAttackMob/performRangedAttack(Lnet/minecraft/world/entity/LivingEntity;F)V: performRangedAttack -> m_6504_
-Conflicting propagated mapping for wcore/sapphic/entities/DataCybermanEntity/tick()V from net/minecraft/world/entity/Mob/tick()V: tick -> m_8119_
-Conflicting propagated mapping for wcore/sapphic/entities/DataCybermanEntity/defineSynchedData()V from net/minecraft/world/entity/Mob/defineSynchedData()V: defineSynchedData -> m_8097_
-Conflicting propagated mapping for wcore/sapphic/entities/DataCybermanEntity/addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V from net/minecraft/world/entity/Mob/addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V: addAdditionalSaveData -> m_7380_
-Conflicting propagated mapping for wcore/sapphic/entities/DataDalekEntity/readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V from net/minecraft/world/entity/Mob/readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V: readAdditionalSaveData -> m_7378_
-Conflicting propagated mapping for wcore/sapphic/entities/DataCybermanEntity/registerGoals()V from wcore/sapphic/ai/AbstractCybermanEntity/registerGoals()V: registerGoals -> m_8099_
-Conflicting propagated mapping for wcore/sapphic/entities/DataDalekEntity/tick()V from net/minecraft/world/entity/Mob/tick()V: tick -> m_8119_
-Conflicting propagated mapping for wcore/sapphic/entities/DataDalekEntity/defineSynchedData()V from net/minecraft/world/entity/Mob/defineSynchedData()V: defineSynchedData -> m_8097_
-Conflicting propagated mapping for wcore/sapphic/entities/DataDalekEntity/addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V from net/minecraft/world/entity/Mob/addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V: addAdditionalSaveData -> m_7380_
-Conflicting propagated mapping for wcore/sapphic/entities/DataDalekEntity/registerGoals()V from wcore/sapphic/ai/AbstractDalekEntity/registerGoals()V: registerGoals -> m_8099_
+Conflicting propagated mapping for wcore/sapphic/ai/AbstractCybermanEntity/performRangedAttack(Lnet/minecraft/world/entity/LivingEntity;F)V from net/minecraft/world/entity/monster/RangedAttackMob/performRangedAttack(Lnet/minecraft/world/entity/LivingEntity;F)V: performRangedAttack -> m_6504_
 Conflicting propagated mapping for wcore/sapphic/api/easy/GenericMobEntity/tick()V from net/minecraft/world/entity/Mob/tick()V: tick -> m_8119_
 Conflicting propagated mapping for wcore/sapphic/api/easy/GenericMobEntity/registerGoals()V from net/minecraft/world/entity/Mob/registerGoals()V: registerGoals -> m_8099_
-Conflicting propagated mapping for net/minecraft/world/entity/LivingEntity/lambda$addAdditionalSaveData$3(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/nbt/Tag;)V from net/minecraft/world/entity/player/Player/lambda$addAdditionalSaveData$3(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/nbt/Tag;)V: lambda$addAdditionalSaveData$3 -> m_219754_
+Conflicting propagated mapping for net/minecraftforge/common/ForgeSpawnEggItem/getType(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/entity/EntityType; from net/minecraft/world/item/SpawnEggItem/getType(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/entity/EntityType;: getType -> m_43228_
 Conflicting propagated mapping for wcore/sapphic/items/BaseSonicItem/useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult; from net/minecraft/world/item/Item/useOn(Lnet/minecraft/world/item/context/UseOnContext;)Lnet/minecraft/world/InteractionResult;: useOn -> m_6225_
 Conflicting propagated mapping for wcore/sapphic/items/BaseSonicItem/isFoil(Lnet/minecraft/world/item/ItemStack;)Z from net/minecraft/world/item/Item/isFoil(Lnet/minecraft/world/item/ItemStack;)Z: isFoil -> m_5812_
-Conflicting propagated mapping for wcore/sapphic/items/DataSonicItem/appendHoverText(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Ljava/util/List;Lnet/minecraft/world/item/TooltipFlag;)V from net/minecraft/world/item/Item/appendHoverText(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Ljava/util/List;Lnet/minecraft/world/item/TooltipFlag;)V: appendHoverText -> m_7373_
-Conflicting propagated mapping for wcore/sapphic/items/DataSonicItem/getName(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/network/chat/Component; from net/minecraft/world/item/Item/getName(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/network/chat/Component;: getName -> m_7626_
-Conflicting propagated mapping for wcore/sapphic/renderers/DataSonicItemRenderer/renderByItem(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V from net/minecraft/client/renderer/BlockEntityWithoutLevelRenderer/renderByItem(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V: renderByItem -> m_108829_
+Conflicting propagated mapping for wcore/sapphic/items/PackagedSonicItem/getName(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/network/chat/Component; from net/minecraft/world/item/Item/getName(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/network/chat/Component;: getName -> m_7626_
+Conflicting propagated mapping for net/minecraft/world/entity/LivingEntity/lambda$addAdditionalSaveData$3(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/nbt/Tag;)V from net/minecraft/world/entity/player/Player/lambda$addAdditionalSaveData$3(Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/nbt/Tag;)V: lambda$addAdditionalSaveData$3 -> m_219754_
 Conflicting propagated mapping for wcore/sapphic/renderers/BaseCybermanRenderer/getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation; from net/minecraft/client/renderer/entity/EntityRenderer/getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation;: getTextureLocation -> m_5478_
 Conflicting propagated mapping for wcore/sapphic/renderers/BaseDalekRenderer/getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation; from net/minecraft/client/renderer/entity/EntityRenderer/getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation;: getTextureLocation -> m_5478_
+Conflicting propagated mapping for wcore/sapphic/renderers/PackagedSonicItemRenderer/renderByItem(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V from net/minecraft/client/renderer/BlockEntityWithoutLevelRenderer/renderByItem(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V: renderByItem -> m_108829_
 Conflicting propagated mapping for net/teabs/teabsdoctorwhomod/client/model/ModelCybusCyberman/setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V from net/minecraft/client/model/EntityModel/setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V: setupAnim -> m_6973_
 Conflicting propagated mapping for net/teabs/teabsdoctorwhomod/client/model/ModelCybusCyberman/renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V from net/minecraft/client/model/Model/renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V: renderToBuffer -> m_7695_
 Conflicting propagated mapping for net/teabs/teabsdoctorwhomod/client/model/Modelbronze_dalek/setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V from net/minecraft/client/model/EntityModel/setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V: setupAnim -> m_6973_
@@ -210,8 +200,7 @@ Writing Output: C:\Users\Samantha\MCreatorWorkspaces\dalekapi\build\reobfJar\out
   net/
   net/sapphic/
   net/sapphic/dalekapi/
-  net/sapphic/dalekapi/DalekapiMod$ClientForgeEvents.class
-  net/sapphic/dalekapi/DalekapiMod$ForgeEvents.class
+  net/sapphic/dalekapi/DalekapiMod$ModEventBusEvents.class
   net/sapphic/dalekapi/DalekapiMod.class
   pack.mcmeta
   wcore/
@@ -223,12 +212,6 @@ Writing Output: C:\Users\Samantha\MCreatorWorkspaces\dalekapi\build\reobfJar\out
   wcore/sapphic/ai/AbstractDalekEntity$2.class
   wcore/sapphic/ai/AbstractDalekEntity.class
   wcore/sapphic/api/
-  wcore/sapphic/api/behavior/
-  wcore/sapphic/api/behavior/CybermanBehavior.class
-  wcore/sapphic/api/behavior/DalekBehavior.class
-  wcore/sapphic/api/behavior/SonicBehavior.class
-  wcore/sapphic/api/client/
-  wcore/sapphic/api/client/ClientTypesSubscriber.class
   wcore/sapphic/api/easy/
   wcore/sapphic/api/easy/EasyEntityRegistry.class
   wcore/sapphic/api/easy/GenericMobEntity$GoalsConfigurer.class
@@ -239,27 +222,6 @@ Writing Output: C:\Users\Samantha\MCreatorWorkspaces\dalekapi\build\reobfJar\out
   wcore/sapphic/api/easy/client/
   wcore/sapphic/api/easy/client/EasyEntityClient$ProviderEntry.class
   wcore/sapphic/api/easy/client/EasyEntityClient.class
-  wcore/sapphic/api/events/
-  wcore/sapphic/api/events/CybermanTickEvent.class
-  wcore/sapphic/api/events/DalekTickEvent.class
-  wcore/sapphic/api/events/SonicUseOnBlockEvent.class
-  wcore/sapphic/api/registry/
-  wcore/sapphic/api/registry/BehaviorRegistries.class
-  wcore/sapphic/api/registry/Factory$1.class
-  wcore/sapphic/api/registry/Factory$2.class
-  wcore/sapphic/api/registry/Factory$3.class
-  wcore/sapphic/api/registry/Factory.class
-  wcore/sapphic/api/registry/TypesRegistries.class
-  wcore/sapphic/api/registry/types/
-  wcore/sapphic/api/registry/types/CybermanType$Builder.class
-  wcore/sapphic/api/registry/types/CybermanType$RendererRegistrar.class
-  wcore/sapphic/api/registry/types/CybermanType.class
-  wcore/sapphic/api/registry/types/DalekType$Builder.class
-  wcore/sapphic/api/registry/types/DalekType$RendererRegistrar.class
-  wcore/sapphic/api/registry/types/DalekType.class
-  wcore/sapphic/api/registry/types/SonicType$Builder.class
-  wcore/sapphic/api/registry/types/SonicType$ClientRegistrar.class
-  wcore/sapphic/api/registry/types/SonicType.class
   wcore/sapphic/commands/
   wcore/sapphic/commands/ReloadPacksCommand.class
   wcore/sapphic/datapack/
@@ -270,9 +232,10 @@ Writing Output: C:\Users\Samantha\MCreatorWorkspaces\dalekapi\build\reobfJar\out
   wcore/sapphic/datapack/definition/CybermanDefinition.class
   wcore/sapphic/datapack/definition/DalekDefinition.class
   wcore/sapphic/datapack/definition/SonicDefinition.class
+  wcore/sapphic/datapack/definition/SpawnEggDefinition.class
   wcore/sapphic/entities/
-  wcore/sapphic/entities/DataCybermanEntity.class
-  wcore/sapphic/entities/DataDalekEntity.class
+  wcore/sapphic/entities/CybermanEntity.class
+  wcore/sapphic/entities/DalekEntity.class
   wcore/sapphic/entities/ExampleCybermanEntity.class
   wcore/sapphic/entities/ExampleDalekEntity.class
   wcore/sapphic/events/
@@ -282,12 +245,12 @@ Writing Output: C:\Users\Samantha\MCreatorWorkspaces\dalekapi\build\reobfJar\out
   wcore/sapphic/init/ModItems.class
   wcore/sapphic/items/
   wcore/sapphic/items/BaseSonicItem.class
-  wcore/sapphic/items/DataSonicItem$1.class
-  wcore/sapphic/items/DataSonicItem.class
+  wcore/sapphic/items/PackagedSonicItem$1.class
+  wcore/sapphic/items/PackagedSonicItem.class
   wcore/sapphic/packs/
   wcore/sapphic/packs/PackAssetManager.class
   wcore/sapphic/packs/PackLoader.class
   wcore/sapphic/renderers/
   wcore/sapphic/renderers/BaseCybermanRenderer.class
   wcore/sapphic/renderers/BaseDalekRenderer.class
-  wcore/sapphic/renderers/DataSonicItemRenderer.class
+  wcore/sapphic/renderers/PackagedSonicItemRenderer.class
