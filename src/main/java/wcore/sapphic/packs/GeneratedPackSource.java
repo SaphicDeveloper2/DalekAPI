@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 /**
  * A custom repository source that finds user-created packs in the /Packs directory
  * and wraps them as valid resource packs for Minecraft using VirtualPackResources.
+ * (User-corrected version)
  */
 public class GeneratedPackSource implements RepositorySource {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -53,7 +54,7 @@ public class GeneratedPackSource implements RepositorySource {
                                 supplier,
                                 new Pack.Info(
                                         Component.literal("Assets for DalekAPI"),
-                                        15,
+                                        15, // Pack format for 1.20.1
                                         FeatureFlags.DEFAULT_FLAGS
                                 ),
                                 PackType.CLIENT_RESOURCES,
@@ -70,3 +71,4 @@ public class GeneratedPackSource implements RepositorySource {
         }
     }
 }
+

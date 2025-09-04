@@ -1,12 +1,13 @@
 package net.sapphic.dalekapi;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.model.obj.ObjLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -21,6 +22,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 import wcore.sapphic.api.easy.client.EasyEntityClient;
+import wcore.sapphic.items.sonics.SonicItemRegistry;
 import wcore.sapphic.commands.ReloadPacksCommand;
 import wcore.sapphic.datapack.CybermanManager;
 import wcore.sapphic.datapack.DalekManager;
@@ -29,12 +31,14 @@ import wcore.sapphic.entities.CybermanEntity;
 import wcore.sapphic.entities.DalekEntity;
 import wcore.sapphic.init.ModEntities;
 import wcore.sapphic.init.ModItems;
-import wcore.sapphic.items.PackagedSonicItem;
-import wcore.sapphic.packs.PackAssetManager;
+import wcore.sapphic.packs.GeneratedPackSource;
 import wcore.sapphic.packs.PackLoader;
 import wcore.sapphic.renderers.BaseCybermanRenderer;
 import wcore.sapphic.renderers.BaseDalekRenderer;
 import wcore.sapphic.api.easy.EasyEntityRegistry;
+
+import java.io.IOException;
+import java.nio.file.Files;
 
 
 @Mod(DalekapiMod.MODID)
@@ -76,7 +80,13 @@ public class DalekapiMod {
                 LOGGER.info("Dynamically registering items from packs...");
                 // Register Sonics
                 SonicManager.INSTANCE.getDefinitions().forEach((id, definition) -> {
-                    event.register(ForgeRegistries.Keys.ITEMS, id, () -> new PackagedSonicItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE), id));
+                    // Get the factory based on the "java_type" in the sonic's JSON definition
+                    SonicItemRegistry.SonicItemFactory factory = SonicItemRegistry.get(definition.getJavaType());
+
+                    // Create the item using the selected factory
+                    event.register(ForgeRegistries.Keys.ITEMS, id, () -> factory.create(
+                            new Item.Properties().stacksTo(1).rarity(Rarity.RARE), id)
+                    );
                 });
                 // Register Spawn Eggs
                 DalekManager.INSTANCE.getDefinitions().forEach((id, definition) -> {
@@ -120,23 +130,26 @@ public class DalekapiMod {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             event.enqueueWork(() -> {
+                // Register entity renderers
                 ModEntities.DALEK_ENTITIES.values().forEach(ro -> EasyEntityClient.registerRenderer(ro, BaseDalekRenderer::new));
                 ModEntities.CYBERMAN_ENTITIES.values().forEach(ro -> EasyEntityClient.registerRenderer(ro, BaseCybermanRenderer::new));
+
+                // Register the repository source for our dynamic resource packs
+                try {
+                    if (Files.notExists(PackLoader.PACKS_DIRECTORY)) {
+                        Files.createDirectories(PackLoader.PACKS_DIRECTORY);
+                    }
+                    // The AddPackFindersEvent is deprecated. We now add our source directly to the repository.
+                    Minecraft.getInstance().getResourcePackRepository().addPackFinder(new GeneratedPackSource(PackLoader.PACKS_DIRECTORY));
+                } catch (IOException e) {
+                    LOGGER.error("Could not create or register 'Packs' directory.", e);
+                }
             });
         }
 
         @SubscribeEvent
-        public static void onRegisterModels(ModelEvent.RegisterAdditional event) {
-            SonicManager.INSTANCE.getDefinitions().keySet().forEach(id -> {
-                event.register(new ResourceLocation(id.getNamespace(), "item/" + id.getPath()));
-            });
-        }
-
-        @SubscribeEvent
-        public static void onModelBake(ModelEvent.BakingCompleted event) {
-            // This is the crucial step. It tells our PackAssetManager to "bake" all the loaded models
-            // so they can be rendered in-game.
-            PackAssetManager.INSTANCE.onBake(event.getModelBakery(), event.getModelManager());
+        public static void onRegisterGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
+            event.register("obj", ObjLoader.INSTANCE);
         }
     }
 
@@ -154,4 +167,3 @@ public class DalekapiMod {
         }
     }
 }
-

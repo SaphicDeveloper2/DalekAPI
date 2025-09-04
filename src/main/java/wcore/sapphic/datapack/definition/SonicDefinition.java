@@ -32,7 +32,13 @@ public final class SonicDefinition {
     }
 
     /**
-     * @return The optional ResourceLocation for a code-defined Java type to link this definition to.
+     * Gets the optional ResourceLocation for a custom Java class implementation for this sonic.
+     * If provided, this ID is used to look up a custom {@link wcore.sapphic.items.sonics.SonicItemRegistry.SonicItemFactory}
+     * which allows coders to provide their own subclasses of {@link wcore.sapphic.items.PackagedSonicItem}
+     * with overridden behavior.
+     * If this is null, the default sonic item implementation will be used.
+     *
+     * @return The ResourceLocation of the registered sonic type, or null for default behavior.
      */
     @Nullable
     public ResourceLocation getJavaType() {
@@ -55,7 +61,10 @@ public final class SonicDefinition {
     }
 
     /**
-     * @return The ResourceLocation of the 3D model for this sonic, as defined in a pack.
+     * @return The ResourceLocation of the 3D model definition for this sonic.
+     * This should point to a model JSON file (e.g., "my_pack:item/my_sonic").
+     * To use an OBJ model, this JSON file should use the forge:obj loader.
+     * Example my_sonic.json: { "loader": "forge:obj", "model": "my_pack:models/item/my_sonic.obj" }
      */
     @Nullable
     public ResourceLocation getModel() {

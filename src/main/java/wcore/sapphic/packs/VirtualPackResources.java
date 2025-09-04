@@ -9,7 +9,6 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.resources.IoSupplier;
-import net.minecraft.world.flag.FeatureFlags;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -23,6 +22,7 @@ import java.util.Set;
  * Its primary purpose is to intercept requests for pack metadata. If a real pack.mcmeta
  * exists, it's used. If not, this class generates a default one in memory, making
  * any folder or zip a valid-looking pack for Minecraft's systems.
+ * (User-corrected version)
  */
 public class VirtualPackResources implements PackResources {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -96,3 +96,4 @@ public class VirtualPackResources implements PackResources {
         return delegate.getNamespaces(type);
     }
 }
+
