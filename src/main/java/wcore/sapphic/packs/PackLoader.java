@@ -25,28 +25,29 @@ public final class PackLoader {
                 Files.createDirectories(PACKS_DIRECTORY);
                 LOGGER.info("Created Packs directory at: {}", PACKS_DIRECTORY.toAbsolutePath());
             }
-            loadAllPacks();
+            // We only need to load the JSON definitions here. Assets are handled by the resource pack system.
+            loadAllPackDefinitions();
         } catch (IOException e) {
             LOGGER.error("Failed to create or access Packs directory!", e);
         }
     }
 
-    private static void loadAllPacks() {
-        LOGGER.info("Loading all packs from: {}", PACKS_DIRECTORY.toAbsolutePath());
+    private static void loadAllPackDefinitions() {
+        LOGGER.info("Loading all pack definitions from: {}", PACKS_DIRECTORY.toAbsolutePath());
 
+        // Clear previous definitions on reload
         DalekManager.INSTANCE.clear();
         CybermanManager.INSTANCE.clear();
         SonicManager.INSTANCE.clear();
-        PackAssetManager.INSTANCE.clear();
 
         try (Stream<Path> stream = Files.list(PACKS_DIRECTORY)) {
             stream.forEach(path -> {
                 String fileName = path.getFileName().toString();
                 if (Files.isDirectory(path)) {
-                    LOGGER.info("Loading pack from directory: {}", fileName);
+                    LOGGER.info("Loading definitions from directory: {}", fileName);
                     loadPackContents(path, getPackId(path));
                 } else if (fileName.toLowerCase().endsWith(".zip")) {
-                    LOGGER.info("Loading pack from zip file: {}", fileName);
+                    LOGGER.info("Loading definitions from zip file: {}", fileName);
                     try (FileSystem zipFs = FileSystems.newFileSystem(path, (ClassLoader) null)) {
                         loadPackContents(zipFs.getPath("/"), getPackId(path));
                     } catch (IOException e) {
@@ -58,23 +59,21 @@ public final class PackLoader {
             LOGGER.error("An error occurred while scanning for packs.", e);
         }
 
-        LOGGER.info("Finished loading packs. Found {} Daleks, {} Cybermen, {} Sonics.",
+        LOGGER.info("Finished loading definitions. Found {} Daleks, {} Cybermen, {} Sonics.",
                 DalekManager.INSTANCE.getDefinitions().size(),
                 CybermanManager.INSTANCE.getDefinitions().size(),
                 SonicManager.INSTANCE.getDefinitions().size()
         );
-        PackAssetManager.INSTANCE.logCounts();
     }
 
     private static void loadPackContents(Path root, String packId) {
-        LOGGER.debug("Loading pack ID '{}' from root: {}", packId, root);
+        LOGGER.debug("Loading definitions for pack ID '{}' from root: {}", packId, root);
         DalekManager.INSTANCE.loadFromPack(root, packId);
         CybermanManager.INSTANCE.loadFromPack(root, packId);
         SonicManager.INSTANCE.loadFromPack(root, packId);
-        PackAssetManager.INSTANCE.loadAssetsFromPack(root, packId);
     }
 
-    private static String getPackId(Path path) {
+    public static String getPackId(Path path) {
         String fileName = path.getFileName().toString();
         if (fileName.toLowerCase().endsWith(".zip")) {
             return fileName.substring(0, fileName.length() - 4).toLowerCase().replaceAll("[^a-z0-9_.-]", "");
@@ -82,4 +81,3 @@ public final class PackLoader {
         return fileName.toLowerCase().replaceAll("[^a-z0-9_.-]", "");
     }
 }
-

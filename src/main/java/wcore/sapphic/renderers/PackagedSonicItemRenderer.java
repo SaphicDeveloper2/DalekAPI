@@ -9,9 +9,9 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 import wcore.sapphic.datapack.SonicManager;
 import wcore.sapphic.datapack.definition.SonicDefinition;
-import wcore.sapphic.items.BaseSonicItem;
 import wcore.sapphic.packs.PackAssetManager;
 
 public class PackagedSonicItemRenderer extends BlockEntityWithoutLevelRenderer {
@@ -25,11 +25,9 @@ public class PackagedSonicItemRenderer extends BlockEntityWithoutLevelRenderer {
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         BakedModel model;
 
-        // Get the definition by asking the item for its ID
-        ResourceLocation defId = null;
-        if (stack.getItem() instanceof BaseSonicItem baseSonicItem) {
-            defId = baseSonicItem.getSonicDefinitionId(stack);
-        }
+        // Get the definition ID directly from the item's registry name.
+        // This is the correct approach now that each sonic is a unique item.
+        ResourceLocation defId = ForgeRegistries.ITEMS.getKey(stack.getItem());
 
         SonicDefinition def = (defId != null) ? SonicManager.INSTANCE.getDefinitions().get(defId) : null;
 
@@ -52,3 +50,4 @@ public class PackagedSonicItemRenderer extends BlockEntityWithoutLevelRenderer {
         poseStack.popPose();
     }
 }
+

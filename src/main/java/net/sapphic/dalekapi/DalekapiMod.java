@@ -127,8 +127,6 @@ public class DalekapiMod {
 
         @SubscribeEvent
         public static void onRegisterModels(ModelEvent.RegisterAdditional event) {
-            // For every sonic we registered, tell the game to use our generic model file.
-            // This signals that a custom BEWLR will handle the rendering.
             SonicManager.INSTANCE.getDefinitions().keySet().forEach(id -> {
                 event.register(new ResourceLocation(id.getNamespace(), "item/" + id.getPath()));
             });
@@ -136,8 +134,7 @@ public class DalekapiMod {
 
         @SubscribeEvent
         public static void onModelBake(ModelEvent.BakingCompleted event) {
-            // This is the crucial step that was missing.
-            // It tells our PackAssetManager to "bake" all the loaded models
+            // This is the crucial step. It tells our PackAssetManager to "bake" all the loaded models
             // so they can be rendered in-game.
             PackAssetManager.INSTANCE.onBake(event.getModelBakery(), event.getModelManager());
         }
